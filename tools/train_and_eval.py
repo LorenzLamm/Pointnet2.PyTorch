@@ -113,8 +113,10 @@ def eval_one_epoch(model, eval_loader, epoch, tb_log=None, log_f=None):
         pts_input = data[:,:3]
         cls_labels = data[:,3]
         #pts_input, cls_labels = batch[it]#, batch['cls_labels']
-        pts_input = torch.from_numpy(pts_input).cuda(non_blocking=True).float()
-        cls_labels = torch.from_numpy(cls_labels).cuda(non_blocking=True).long().view(-1)
+        #pts_input = torch.from_numpy(pts_input).cuda(non_blocking=True).float()
+        #cls_labels = torch.from_numpy(cls_labels).cuda(non_blocking=True).long().view(-1)
+        pts_input = pts_input.float()
+        cls_labels = cls_labels.long().view(-1)
 
         pred_cls = model(pts_input)
         pred_cls = pred_cls.view(-1)
