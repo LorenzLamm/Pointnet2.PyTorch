@@ -11,9 +11,10 @@ import tensorboard_logger as tb_log
 from dataset import KittiDataset
 import argparse
 import importlib
+from our_data.data import Indoor3DSemSeg#Loader
 
 parser = argparse.ArgumentParser(description="Arg parser")
-parser.add_argument("--batch_size", type=int, default=8)
+parser.add_argument("--batch_size", type=int, default=1)
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--ckpt_save_interval", type=int, default=5)
 parser.add_argument('--workers', type=int, default=4)
@@ -66,11 +67,13 @@ def train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_i
 
     for it, batch in enumerate(train_loader):
         optimizer.zero_grad()
-
-        pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
-        pts_input = torch.from_numpy(pts_input).cuda(non_blocking=True).float()
-        cls_labels = torch.from_numpy(cls_labels).cuda(non_blocking=True).long().view(-1)
-
+        data = batch
+        pts_input = data[0][:,:,:3]
+        cls_labels = data[1]
+        #pts_input, cls_labels = batch[it]#, batch['cls_labels']
+        #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
+        pts_input = pts_input.contiguous().cuda(non_blocking=True).float()
+        cls_labels = cls_labels.contiguous().cuda(non_blocking=True).long().view(-1)
         pred_cls = model(pts_input)
         pred_cls = pred_cls.view(-1)
 
@@ -105,7 +108,11 @@ def eval_one_epoch(model, eval_loader, epoch, tb_log=None, log_f=None):
 
     iou_list = []
     for it, batch in enumerate(eval_loader):
-        pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
+        print(batch[it].shape)
+        data = batch[it]
+        pts_input = data[:,:3]
+        cls_labels = data[:,3]
+        #pts_input, cls_labels = batch[it]#, batch['cls_labels']
         pts_input = torch.from_numpy(pts_input).cuda(non_blocking=True).float()
         cls_labels = torch.from_numpy(cls_labels).cuda(non_blocking=True).long().view(-1)
 
@@ -170,6 +177,7 @@ def train_and_eval(model, train_loader, eval_loader, tb_log, ckpt_dir, log_f):
     total_it = 0
     for epoch in range(1, args.epochs + 1):
         lr_scheduler.step(epoch)
+        print("We are now training.")
         total_it = train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_it, tb_log, log_f)
 
         if epoch % args.ckpt_save_interval == 0:
@@ -182,15 +190,15 @@ def train_and_eval(model, train_loader, eval_loader, tb_log, ckpt_dir, log_f):
 if __name__ == '__main__':
     MODEL = importlib.import_module(args.net)  # import network module
     model = MODEL.get_model(input_channels=0)
-
-    eval_set = KittiDataset(root_dir='./data', mode='EVAL', split='val')
+    test_set = Indoor3DSemSeg(8192, train=False)
+    eval_set = Indoor3DSemSeg(8192, train=False)
     eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False, pin_memory=True,
-                             num_workers=args.workers, collate_fn=eval_set.collate_batch)
+                             num_workers=args.workers)
 
     if args.mode == 'train':
-        train_set = KittiDataset(root_dir='./data', mode='TRAIN', split='train')
+        train_set = Indoor3DSemSeg(8192, train=True)
         train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, pin_memory=True,
-                                  num_workers=args.workers, collate_fn=train_set.collate_batch)
+                                  num_workers=args.workers)
         # output dir config
         output_dir = os.path.join(args.output_dir, args.extra_tag)
         os.makedirs(output_dir, exist_ok=True)
