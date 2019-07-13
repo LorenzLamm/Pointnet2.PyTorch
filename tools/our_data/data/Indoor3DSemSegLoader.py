@@ -14,7 +14,8 @@ import subprocess
 import shlex
 
 #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = "/workspace/pointnet_train"
+#BASE_DIR = "/workspace/pointnet_train"
+BASE_DIR = "/content/pointnet_train"
 #BASE_DIR = "/home/lorenzlamm/Dokumente/pointnet_Pytorch_test/pointnetPytorch/pointnet2/data"
 #BASE_DIR = "/home/lorenzlamm/Dokumente/sshaoshuai/Pointnet2.PyTorch/tools/our_data/data"
 
