@@ -190,7 +190,7 @@ def train_and_eval(model, train_loader, eval_loader, tb_log, ckpt_dir, log_f):
 
 if __name__ == '__main__':
     MODEL = importlib.import_module(args.net)  # import network module
-    model = MODEL.get_model(input_channels=0)
+    model = MODEL.get_model(input_channels=3)
     test_set = Indoor3DSemSeg(8192, train=False)
     eval_set = Indoor3DSemSeg(8192, train=False)
     eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False, pin_memory=True,
