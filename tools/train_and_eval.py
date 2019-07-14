@@ -74,6 +74,10 @@ def train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_i
         #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
         pts_input = pts_input.contiguous().cuda(non_blocking=True).float()
         cls_labels = cls_labels.contiguous().cuda(non_blocking=True).long().view(-1)
+        print(cls_labels.shape, "<-----------------------------")
+        print(pts_input.shape)
+        print(cls_labels)
+        print(pts_input)
         pred_cls = model(pts_input)
         pred_cls = pred_cls.view(-1)
 
@@ -190,7 +194,7 @@ def train_and_eval(model, train_loader, eval_loader, tb_log, ckpt_dir, log_f):
 
 if __name__ == '__main__':
     MODEL = importlib.import_module(args.net)  # import network module
-    model = MODEL.get_model(input_channels=3)
+    model = MODEL.get_model(input_channels=0)
     test_set = Indoor3DSemSeg(8192, train=False)
     eval_set = Indoor3DSemSeg(8192, train=False)
     eval_loader = DataLoader(eval_set, batch_size=args.batch_size, shuffle=False, pin_memory=True,
