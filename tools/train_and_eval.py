@@ -68,10 +68,8 @@ def train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_i
     for it, batch in enumerate(train_loader):
         optimizer.zero_grad()
         data = batch
-        pts_input = data[0][:,:,:3]
+        pts_input = data[0]#[:,:,:3]
         cls_labels = data[1]
-        print(pts_input.shape)
-        print(cls_labels.shape)
         #pts_input, cls_labels = batch[it]#, batch['cls_labels']
         #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
         pts_input = pts_input.contiguous().cuda(non_blocking=True).float()
@@ -112,13 +110,12 @@ def eval_one_epoch(model, eval_loader, epoch, tb_log=None, log_f=None):
     for it, batch in enumerate(eval_loader):
         print(batch[it].shape)
         data = batch[it]
-        pts_input = data[:,:3]
-        cls_labels = data[:,3]
+        pts_input = data[0]#[:,:,:3]
+        cls_labels = data[1]
         #pts_input, cls_labels = batch[it]#, batch['cls_labels']
-        #pts_input = torch.from_numpy(pts_input).cuda(non_blocking=True).float()
-        #cls_labels = torch.from_numpy(cls_labels).cuda(non_blocking=True).long().view(-1)
-        pts_input = pts_input.float()
-        cls_labels = cls_labels.long().view(-1)
+        #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
+        pts_input = pts_input.contiguous().cuda(non_blocking=True).float()
+        cls_labels = cls_labels.contiguous().cuda(non_blocking=True).long().view(-1)
 
         pred_cls = model(pts_input)
         pred_cls = pred_cls.view(-1)
