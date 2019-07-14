@@ -72,7 +72,6 @@ def train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_i
         data = batch
         pts_input = data[0]#[:,:,:3]
         cls_labels = data[1]
-        print(pts_input.shape, cls_labels.shape)
         #pts_input, cls_labels = batch[it]#, batch['cls_labels']
         #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
         pts_input = pts_input.contiguous().cuda(non_blocking=True).float()
@@ -111,11 +110,9 @@ def eval_one_epoch(model, eval_loader, epoch, tb_log=None, log_f=None):
 
     iou_list = []
     for it, batch in enumerate(eval_loader):
-        print(batch[it].shape)
-        data = batch[it]
+        data = batch
         pts_input = data[0]#[:,:,:3]
         cls_labels = data[1]
-        print(pts_input.shape, cls_labels.shape)
 
         #pts_input, cls_labels = batch[it]#, batch['cls_labels']
         #pts_input, cls_labels = batch['pts_input'], batch['cls_labels']
