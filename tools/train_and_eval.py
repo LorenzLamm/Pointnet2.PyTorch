@@ -66,6 +66,8 @@ def train_one_epoch(model, train_loader, optimizer, epoch, lr_scheduler, total_i
     loss_func = DiceLoss(ignore_target=-1)
 
     for it, batch in enumerate(train_loader):
+        if(it == 10):
+            break
         optimizer.zero_grad()
         data = batch
         pts_input = data[0]#[:,:,:3]
